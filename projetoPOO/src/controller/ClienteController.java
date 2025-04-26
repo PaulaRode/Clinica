@@ -162,6 +162,48 @@ public class ClienteController {
         return null;
     }
 
+    public List<Cliente> buscarClientePorNome(String nome) {
+        //Guarda o sql
+        String sql = "SELECT * FROM cliente "
+                + " WHERE upper(nome) like upper('%'+ ? + '%') ";
+        //Cria um gerenciador de conexão
+        GerenciadorConexao gerenciador = new GerenciadorConexao();
+        List<Cliente> listaClientes = new ArrayList<>();
+
+        PreparedStatement comando = null;
+        ResultSet resultado = null;
+
+        try {
+            //Preparo do comando sql
+            comando = gerenciador.prepararComando(sql);
+            comando.setString(1, nome);
+
+            //Executo o comando e guardo o resultado
+            resultado = comando.executeQuery();
+
+            //Irá percorrer os registros do resultado do sql
+            //A cada next() a variavel resultado aponta para o próximo registro 
+            //enquanto next() == true quer dizer que tem registros
+            while (resultado.next()) {
+
+                //Crio um novo cliente vazio
+                Cliente cliente = new Cliente();
+                //Leio as informações da variável resultado e guardo no cliente
+                cliente.setId(resultado.getInt("id"));
+                cliente.setNome(resultado.getString("nome"));
+                cliente.setEmailCli(resultado.getString("emailCli"));
+                cliente.setCpf(resultado.getString("cpf"));
+                cliente.setDataNasc(resultado.getDate("dataNasc"));
+                //adiciono o cliente na lista
+                listaClientes.add(cliente);
+            }
+
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Erro ao buscar cliente: " + ex.getMessage());
+        }
+        return listaClientes;
+    }
+
     public List<Cliente> consultar() {
         //Guarda o sql
         String sql = "SELECT * FROM cliente;";
